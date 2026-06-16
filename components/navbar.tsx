@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+
 import { PenLine } from 'lucide-react'
-import { cn } from '@/lib/utils'
+
 import { ThemeToggle } from '@/components/theme-toggle'
+import { cn } from '@/lib/utils'
 
 const links = [
   { href: '/', label: 'Home', title: 'Home' },
@@ -23,7 +25,7 @@ export function Navbar() {
           className="flex items-center gap-2 font-semibold tracking-tight"
           title="Home"
         >
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <span className="hidden size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground sm:flex">
             <PenLine className="size-4" />
           </span>
           <span className="text-lg">
