@@ -38,6 +38,7 @@
     "eslint-plugin-simple-import-sort": "^13.0.0",
     "postcss": "^8.5",
     "prettier": "^3.8.4",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4.2.0",
     "typescript": "5.7.3"
   }

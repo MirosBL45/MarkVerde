@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 
 import { PenLine } from 'lucide-react'
 
-import { ThemeToggle } from '@/components/theme-toggle'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { cn } from '@/lib/utils'
 
 const links = [

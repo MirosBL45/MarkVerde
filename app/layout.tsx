@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { Navbar } from '@/components/navbar'
-import { ThemeProvider } from '@/components/theme-provider'
+import { Footer } from "@/components/layout/footer";
+import { Navbar } from '@/components/layout/navbar'
+import { ThemeProvider } from '@/components/layout/theme-provider'
 
 import "./globals.css";
 
@@ -49,6 +50,7 @@ export default function RootLayout({
         <div className="flex min-h-screen flex-col">
           <Navbar />
           <div className="flex flex-1 flex-col">{children}</div>
+          <Footer />
         </div>
         </ThemeProvider>
       </body>
