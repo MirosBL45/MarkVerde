@@ -1,0 +1,43 @@
+{
+    "posts": [
+        {
+            "slug": "writing-clean-functions",
+            "title": "The Art of Writing Clean Functions",
+            "excerpt": "Small, focused functions are the building blocks of maintainable code. Here is how to keep them sharp.",
+            "author": "Maya Chen",
+            "date": "2026-05-18",
+            "readingTime": "4 min read",
+            "tags": [
+                "Clean Code",
+                "Best Practices"
+            ],
+            "content": "## Why function design matters\n\nFunctions are the smallest reusable unit of logic in your codebase. When they are well-named and do exactly one thing, the rest of your code reads like prose. When they sprawl, every change becomes a guessing game.\n\n### Keep them short\n\nA function that fits on a single screen is easier to reason about. If you need to scroll, you are probably mixing concerns. Extract helpers until each piece has a single, clear responsibility.\n\n### Name things honestly\n\nA function called `getUser` should return a user, not also send an email and update a cache. Surprising side effects are the number one source of late-night debugging sessions.\n\n> Good code is its own documentation.\n\n### Limit the arguments\n\nWhen a function takes five positional arguments, callers have to remember the order. Prefer an options object, or split the function in two.\n\n```js\nfunction createUser({ name, email, role }) {\n  // clear and self-documenting\n}\n```\n\nClean functions compound. Each well-crafted one makes the next feature a little easier to ship."
+        },
+        {
+            "slug": "understanding-async-await",
+            "title": "Understanding Async/Await Without the Headache",
+            "excerpt": "Promises power modern JavaScript, but async/await makes them readable. Let us demystify the flow.",
+            "author": "Diego Alvarez",
+            "date": "2026-04-30",
+            "readingTime": "5 min read",
+            "tags": [
+                "JavaScript",
+                "Async"
+            ],
+            "content": "## From callbacks to clarity\n\nAsynchronous code used to mean deeply nested callbacks, the infamous *pyramid of doom*. Promises flattened that pyramid, and `async/await` turned it into something that reads top to bottom.\n\n### The mental model\n\nWhen you `await` a promise, the function pauses without blocking the thread. Other work keeps running, and execution resumes once the promise settles.\n\n```js\nasync function loadProfile(id) {\n  const user = await fetchUser(id)\n  const posts = await fetchPosts(user.id)\n  return { user, posts }\n}\n```\n\n### Handle errors with try/catch\n\nBecause awaited code reads synchronously, you can wrap it in familiar `try/catch` blocks instead of chaining `.catch()` calls.\n\n### Run things in parallel\n\nAwaiting sequentially is wasteful when calls are independent. Reach for `Promise.all` to fire them at once.\n\n```js\nconst [user, settings] = await Promise.all([\n  fetchUser(id),\n  fetchSettings(id),\n])\n```\n\nMaster these patterns and asynchronous code stops being scary and starts being boring, which is exactly what you want."
+        },
+        {
+            "slug": "why-types-matter",
+            "title": "Why Static Types Save You Time",
+            "excerpt": "TypeScript feels like extra work until it catches the bug that would have shipped to production.",
+            "author": "Priya Nair",
+            "date": "2026-04-12",
+            "readingTime": "3 min read",
+            "tags": [
+                "TypeScript",
+                "Tooling"
+            ],
+            "content": "## Types are documentation that cannot lie\n\nComments drift out of date. Types do not. When a function signature says it returns a `User`, the compiler enforces that promise forever.\n\n### Catch bugs before runtime\n\nTypos in property names, forgotten null checks, mismatched argument orders. A type checker flags these the instant you write them, long before a user ever clicks a button.\n\n### Refactor with confidence\n\nRename a field and the compiler walks you through every call site that needs updating. Large refactors stop feeling like high-wire acts.\n\n```ts\ninterface User {\n  id: string\n  name: string\n  email: string\n}\n```\n\n### Better tooling everywhere\n\nAutocomplete, inline docs, and jump-to-definition all get smarter when your editor understands the shape of your data.\n\nThe upfront cost of adding types is small. The payoff, measured in bugs that never happen, is enormous."
+        }
+    ]
+}
