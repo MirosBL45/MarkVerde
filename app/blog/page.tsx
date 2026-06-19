@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 
+import { BlogCard } from "@/components/blog/blog-card";
+import { getAllPosts } from "@/lib/blog";
+
 export const metadata: Metadata = {
   title: "Blog — MarkVerde",
   description: "Notes on programming, clean code, and the craft of writing software.",
 };
 
 export default function BlogPage() {
+  const posts = getAllPosts();
+
   return (
     <main className="flex flex-1 flex-col">
       <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-16 sm:px-6">
@@ -17,6 +22,11 @@ export default function BlogPage() {
             Thoughts on programming, clean code, and building better software, one post at a time.
           </p>
         </header>
+        <div className="grid gap-6 sm:grid-cols-2">
+          {posts.map((post) => (
+            <BlogCard key={post.slug} post={post} />
+          ))}
+        </div>
       </div>
     </main>
   );
