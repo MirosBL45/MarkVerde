@@ -104,6 +104,27 @@ export function useNotes() {
     });
   }, []);
 
+  const importNoteFromFile = useCallback(async (file: File) => {
+    const now = Date.now();
+
+    const title = file.name.replace(/\.(md|markdown|txt)$/i, "").trim() || "Imported note";
+
+    const content = await file.text();
+
+    const note: Note = {
+      id: crypto.randomUUID(),
+      title,
+      content,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    setNotes((prev) => [note, ...prev]);
+    setActiveId(note.id);
+
+    return note.id;
+  }, []);
+
   const activeNote = notes.find((note) => note.id === activeId) ?? null;
 
   return {
@@ -116,5 +137,6 @@ export function useNotes() {
     deleteNote,
     loaded,
     isSaving,
+    importNoteFromFile,
   };
 }

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function EditorPage() {
   return (
-    <main className="flex flex-1 flex-col" style={{ height: "calc(100vh - 4rem)" }}>
+    <main className="flex h-[calc(100dvh-9.9rem)] min-h-0 flex-col overflow-hidden">
       <EditorWorkspace />
     </main>
   );
