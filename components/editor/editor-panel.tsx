@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { type RefObject, type UIEvent, useMemo, useRef } from "react";
 
 import { Download, Trash2 } from "lucide-react";
 
@@ -11,6 +11,8 @@ interface EditorPanelProps {
   note: Note;
   onChange: (patch: { title?: string; content?: string }) => void;
   onDelete: () => void;
+  textareaRef?: RefObject<HTMLTextAreaElement | null>;
+  onEditorScroll?: (event: UIEvent<HTMLTextAreaElement>) => void;
 }
 
 function countWords(text: string) {
@@ -19,8 +21,15 @@ function countWords(text: string) {
   return trimmed.split(/\s+/).length;
 }
 
-export function EditorPanel({ note, onChange, onDelete }: EditorPanelProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+export function EditorPanel({
+  note,
+  onChange,
+  onDelete,
+  textareaRef: externalTextareaRef,
+  onEditorScroll,
+}: EditorPanelProps) {
+  const fallbackTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const textareaRef = externalTextareaRef ?? fallbackTextareaRef;
 
   const wordCount = useMemo(() => countWords(note.content), [note.content]);
   const charCount = note.content.length;
@@ -43,7 +52,7 @@ export function EditorPanel({ note, onChange, onDelete }: EditorPanelProps) {
   };
 
   return (
-    <div className="flex h-full flex-col border-border lg:border-r">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden border-border lg:border-r">
       <div className="flex items-center gap-2 border-b border-border bg-card px-3 py-2">
         <input
           type="text"
@@ -78,9 +87,10 @@ export function EditorPanel({ note, onChange, onDelete }: EditorPanelProps) {
         ref={textareaRef}
         value={note.content}
         onChange={(e) => onChange({ content: e.target.value })}
+        onScroll={onEditorScroll}
         placeholder="Start writing in markdown..."
         spellCheck
-        className="flex-1 resize-none bg-background p-4 font-mono text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
+        className="min-h-0 flex-1 resize-none overflow-y-auto bg-background p-4 font-mono text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
       />
 
       <div className="flex items-center justify-end gap-4 border-t border-border bg-card px-4 py-2 text-xs text-muted-foreground">

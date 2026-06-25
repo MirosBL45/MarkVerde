@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { type UIEvent, useCallback, useRef, useState } from "react";
 
 import { Check, Cloud, FileText, Menu, Plus } from "lucide-react";
 
@@ -21,10 +21,59 @@ export function EditorWorkspace() {
     deleteNote,
     loaded,
     isSaving,
+    importNoteFromFile,
   } = useNotes();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+
+  const editorTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const previewRef = useRef<HTMLDivElement | null>(null);
+  const syncingFrom = useRef<"editor" | "preview" | null>(null);
+  const scrollResetTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const syncScroll = useCallback(
+    (source: HTMLElement, target: HTMLElement, from: "editor" | "preview") => {
+      const sourceMaxScroll = source.scrollHeight - source.clientHeight;
+      const targetMaxScroll = target.scrollHeight - target.clientHeight;
+
+      if (sourceMaxScroll <= 0 || targetMaxScroll <= 0) return;
+
+      const scrollRatio = source.scrollTop / sourceMaxScroll;
+
+      syncingFrom.current = from;
+      target.scrollTop = scrollRatio * targetMaxScroll;
+
+      if (scrollResetTimeout.current) {
+        clearTimeout(scrollResetTimeout.current);
+      }
+
+      scrollResetTimeout.current = setTimeout(() => {
+        syncingFrom.current = null;
+      }, 80);
+    },
+    []
+  );
+
+  const handleEditorScroll = useCallback(
+    (event: UIEvent<HTMLTextAreaElement>) => {
+      if (syncingFrom.current === "preview") return;
+      if (!previewRef.current) return;
+
+      syncScroll(event.currentTarget, previewRef.current, "editor");
+    },
+    [syncScroll]
+  );
+
+  const handlePreviewScroll = useCallback(
+    (event: UIEvent<HTMLDivElement>) => {
+      if (syncingFrom.current === "editor") return;
+      if (!editorTextareaRef.current) return;
+
+      syncScroll(event.currentTarget, editorTextareaRef.current, "preview");
+    },
+    [syncScroll]
+  );
 
   const handleSelect = (id: string) => {
     setActiveId(id);
@@ -33,6 +82,11 @@ export function EditorWorkspace() {
 
   const handleCreate = () => {
     createNote();
+    setSidebarOpen(false);
+  };
+
+  const handleImportNote = async (file: File) => {
+    await importNoteFromFile(file);
     setSidebarOpen(false);
   };
 
@@ -45,14 +99,15 @@ export function EditorWorkspace() {
   }
 
   return (
-    <div className="relative flex flex-1 overflow-hidden">
+    <div className="relative flex min-h-0 flex-1 overflow-hidden">
       {/* Desktop sidebar */}
-      <aside className="hidden w-72 shrink-0 border-r border-border lg:block">
+      <aside className="hidden h-full min-h-0 w-72 shrink-0 overflow-hidden border-r border-border lg:block">
         <NoteSidebar
           notes={notes}
           activeId={activeId}
           onSelect={handleSelect}
           onCreate={handleCreate}
+          onImportNote={handleImportNote}
         />
       </aside>
 
@@ -63,12 +118,13 @@ export function EditorWorkspace() {
             className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="absolute left-0 top-0 h-full w-72 max-w-[80%] border-r border-border shadow-2xl">
+          <div className="absolute left-0 top-0 h-full min-h-0 w-72 max-w-[80%] overflow-hidden border-r border-border shadow-2xl">
             <NoteSidebar
               notes={notes}
               activeId={activeId}
               onSelect={handleSelect}
               onCreate={handleCreate}
+              onImportNote={handleImportNote}
               onClose={() => setSidebarOpen(false)}
             />
           </div>
@@ -76,7 +132,7 @@ export function EditorWorkspace() {
       )}
 
       {/* Main */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {/* Mobile top bar */}
         <div className="flex items-center justify-between gap-2 border-b border-border bg-card px-3 py-2 lg:hidden">
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -115,15 +171,21 @@ export function EditorWorkspace() {
               )}
             </div>
 
-            <div className="grid flex-1 grid-rows-2 overflow-hidden lg:grid-cols-2 lg:grid-rows-1">
-              <div className="row-span-1 flex flex-col overflow-hidden border-b border-border lg:border-b-0">
+            <div className="grid min-h-0 flex-1 grid-rows-2 overflow-hidden lg:grid-cols-2 lg:grid-rows-1">
+              <div className="row-span-1 flex min-h-0 flex-col overflow-hidden border-b border-border lg:border-b-0">
                 <EditorPanel
                   note={activeNote}
                   onChange={(patch) => updateNote(activeNote.id, patch)}
                   onDelete={() => setPendingDelete(activeNote.id)}
+                  textareaRef={editorTextareaRef}
+                  onEditorScroll={handleEditorScroll}
                 />
               </div>
-              <div className="row-span-1 overflow-y-auto bg-background p-4 lg:p-6">
+              <div
+                ref={previewRef}
+                onScroll={handlePreviewScroll}
+                className="row-span-1 min-h-0 overflow-y-auto bg-background p-4 lg:p-6"
+              >
                 <MarkdownPreview content={activeNote.content} />
               </div>
             </div>
